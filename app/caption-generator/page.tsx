@@ -32,33 +32,33 @@ Photo Suggestion: [Describe an appropriate photo setup that matches this tone]
 
 {{/tones}}
 
-Keep suggestions specific, actionable, and aligned with both the niche and tone.`
+Keep suggestions specific, actionable, and aligned with both the niche and tone. `
 
-const CAPTION_TEMPLATE = `Generate an engaging caption for the following niche: "{{niche}}"
+const CAPTION_TEMPLATE = `Generate an engaging caption in Hinglish (mix of Hindi and English) for the following niche: "{{niche}}"
 Tone: {{selectedTone}}
 
-Please provide 3 different caption options. Each caption should include:
+Please provide 3 different Hinglish caption options. Each caption should include:
 1. Start with 2-3 relevant emojis that match the niche and tone
-2. An attention-grabbing opening line
-3. Main content with natural emoji usage throughout (✨, 🌟, 💫, 🔥, etc.)
-4. One engaging question or call-to-action
-5. Line break, then 5-7 relevant hashtags with a mix of popular and niche-specific tags
+2. Attention-grabbing opening line in Hinglish
+3. Main content in Hinglish with natural emoji usage (✨, 🌟, 💫, 🔥, etc.)
+4. One engaging question or call-to-action in Hinglish
+5. Line break, then 5-7 relevant hashtags (mix of English and Hindi)
 
-Example format for each caption:
-[Niche Emojis] Opening Line
-[Main content with sprinkled emojis]
-[Question/CTA]
+Example format:
+[Emojis] Kya aap ready hai? ✨
+Main content with natural Hinglish flow 🌟 Engaging story or tips
+Aap kya sochte hai? Comment mein batayein! 💫
 
-#hashtag1 #hashtag2 #hashtag3 #hashtag4 #hashtag5
+#hashtag1 #hashtag2 #YourNiche #trending #viral
 
-Suggested emoji themes per tone:
-👔 Formal: ✨ 📊 💼 🎯 📈
-🙂 Friendly: 💕 ✨ 🌟 🤗 💫
-😎 Casual: 🔥 ✌️ 🙌 🎉 💯
-💼 Professional: 📱 💡 🎯 ⭐️ 📊
-💪 Confident: 💪 🔥 ⚡️ 🚀 💯
+Keep the tone {{toneDescription}} while writing in natural Hinglish that resonates with Indian audience.
 
-Keep the tone {{toneDescription}} while maintaining authenticity and engagement.`
+Example tones in Hinglish:
+👔 Formal: Professional par desi touch ke saath
+🙂 Friendly: Dost jaisa, casual aur approachable
+😎 Casual: Masti bhara aur fun
+💼 Professional: Business-minded par friendly
+💪 Confident: Josh bhara aur inspiring`
 
 export default function CaptionGenerator() {
   const [niche, setNiche] = useState('')
