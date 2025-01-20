@@ -46,13 +46,13 @@ export default function Home() {
               <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-6">
                 <Link
                   href="/caption-generator"
-                  className="w-full sm:w-auto rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-3 text-base font-semibold text-white shadow-lg hover:opacity-90 transition-all duration-200 hover:scale-105"
+                  className="w-full sm:w-auto rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-3 text-base font-semibold text-white shadow-lg hover:opacity-90 active:scale-95 transition-all duration-200 hover:scale-105 touch-manipulation"
                 >
                   Get Started
                 </Link>
                 <Link 
                   href="/features" 
-                  className="group text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2 hover:gap-3 transition-all duration-200"
+                  className="group text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2 hover:gap-3 active:opacity-70 transition-all duration-200 touch-manipulation"
                 >
                   Learn more 
                   <ArrowRightIcon className="h-4 w-4 transition-transform group-hover:translate-x-1" />
