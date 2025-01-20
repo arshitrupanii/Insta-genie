@@ -36,7 +36,7 @@ export async function POST(req: Request) {
           },
           {
             inlineData: {
-              data: Array.from(imageBytes),
+              data: Buffer.from(imageBytes).toString('base64'),
               mimeType: image.type
             }
           }
@@ -59,15 +59,17 @@ export async function POST(req: Request) {
       return NextResponse.json({ ideas });
     } catch (aiError) {
       console.error('AI Generation Error:', aiError);
+      const errorMessage = (aiError as Error).message;
       return NextResponse.json(
-        { error: 'Failed to generate ideas with AI', details: aiError.message },
+        { error: 'Failed to generate ideas with AI', details: errorMessage },
         { status: 500 }
       );
     }
   } catch (error) {
     console.error('Request Processing Error:', error);
+    const errorMessage = (error as Error).message;
     return NextResponse.json(
-      { error: 'Failed to process request', details: error.message },
+      { error: 'Failed to process request', details: errorMessage },
       { status: 500 }
     );
   }
