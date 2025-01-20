@@ -45,7 +45,7 @@ export default function Home() {
               </p>
               <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-6">
                 <Link
-                  href="/content-ideas"
+                  href="/caption-generator"
                   className="w-full sm:w-auto rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-3 text-base font-semibold text-white shadow-lg hover:opacity-90 transition-all duration-200 hover:scale-105"
                 >
                   Get Started
