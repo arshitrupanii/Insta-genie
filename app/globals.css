@@ -3,6 +3,22 @@
 @tailwind utilities;
 
 @layer base {
+  /* Remove tap highlight on mobile */
+  * {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+  }
+
+  /* Add global interactive element styles */
+  a, button, [role="button"] {
+    @apply transition-all duration-200 active:scale-95;
+  }
+
+  /* Interactive card style */
+  .interactive-card {
+    @apply transition-all duration-200 hover:shadow-lg active:scale-98;
+  }
+
   :root {
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
@@ -74,6 +90,13 @@
 
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+/* Scale value for subtle touch feedback */
+@layer utilities {
+  .active\:scale-98:active {
+    transform: scale(0.98);
   }
 }
 
