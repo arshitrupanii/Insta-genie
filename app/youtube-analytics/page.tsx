@@ -31,6 +31,13 @@ export default function YoutubeAnalytics() {
     setLoading(true)
     setError('')
 
+    // Validate YouTube URL
+    if (!isValidYouTubeUrl(channelUrl)) {
+      setError('Please enter a valid YouTube channel URL.')
+      setLoading(false)
+      return;
+    }
+
     try {
       const channelId = extractChannelId(channelUrl)
       const apiKey = process.env.NEXT_PUBLIC_YOUTUBE_API_KEY
@@ -97,6 +104,12 @@ export default function YoutubeAnalytics() {
     } finally {
       setLoading(false)
     }
+  }
+
+  // Function to validate YouTube URL
+  const isValidYouTubeUrl = (url: string): boolean => {
+    const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com\/(channel|user|c|watch\?v=|@)|youtu\.be\/).+/;
+    return youtubeRegex.test(url);
   }
 
   // Helper function to extract channel ID from URL
