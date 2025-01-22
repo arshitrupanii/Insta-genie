@@ -67,7 +67,7 @@ export default function CaptionGenerator() {
   const [captions, setCaptions] = useState<string[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [imagePreview, setImagePreview] = useState<string | null>(null)
+  const [imagePreviews, setImagePreviews] = useState<string[]>([])
   const fileInputRef = useRef<HTMLInputElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const suggestionsRef = useRef<HTMLDivElement>(null)
@@ -105,27 +105,34 @@ export default function CaptionGenerator() {
   }
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) {
+    const files = Array.from(e.target.files || [])
+    
+    // Check if adding new files would exceed the limit
+    if (imagePreviews.length + files.length > 5) {
+      setError('Maximum 5 images allowed')
+      return
+    }
+
+    files.forEach(file => {
       if (file.size > 10 * 1024 * 1024) {
-        setError('Image size must be less than 10MB')
+        setError('Each image must be less than 10MB')
         return
       }
       
       const reader = new FileReader()
       reader.onloadend = () => {
-        setImagePreview(reader.result as string)
+        setImagePreviews(prev => [...prev, reader.result as string])
         setError(null)
       }
       reader.onerror = () => {
         setError('Failed to read image file')
       }
       reader.readAsDataURL(file)
-    }
+    })
   }
 
-  const removeImage = () => {
-    setImagePreview(null)
+  const removeImage = (index: number) => {
+    setImagePreviews(prev => prev.filter((_, i) => i !== index))
     setError(null)
     if (fileInputRef.current) {
       fileInputRef.current.value = ''
@@ -281,36 +288,43 @@ export default function CaptionGenerator() {
             {/* Optional Image Upload */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Add an image for context (optional)
+                Add images for context (max 5)
               </label>
-              <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 dark:border-gray-600 border-dashed rounded-lg">
+              <div className="mt-1 flex flex-col px-6 pt-5 pb-6 border-2 border-gray-300 dark:border-gray-600 border-dashed rounded-lg">
                 <div className="space-y-1 text-center">
-                  {imagePreview ? (
-                    <div className="relative">
-                      <Image
-                        src={imagePreview}
-                        alt="Preview"
-                        width={128}
-                        height={128}
-                        className="mx-auto h-32 w-auto rounded-lg object-contain"
-                      />
-                      <button
-                        type="button"
-                        onClick={removeImage}
-                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
-                      >
-                        <XMarkIcon className="h-4 w-4" />
-                      </button>
+                  {imagePreviews.length > 0 ? (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-4">
+                      {imagePreviews.map((preview, index) => (
+                        <div key={index} className="relative group w-32 h-32">
+                          <Image
+                            src={preview}
+                            alt={`Preview ${index + 1}`}
+                            width={128}
+                            height={128}
+                            className="h-32 w-32 rounded-lg object-cover"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removeImage(index)}
+                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 shadow-sm"
+                            aria-label="Remove image"
+                          >
+                            <XMarkIcon className="h-4 w-4" />
+                          </button>
+                        </div>
+                      ))}
                     </div>
-                  ) : (
+                  ) : null}
+                  
+                  {imagePreviews.length < 5 && (
                     <>
                       <PhotoIcon className="mx-auto h-12 w-12 text-gray-400" />
-                      <div className="flex text-sm text-gray-600 dark:text-gray-400">
+                      <div className="flex text-sm text-gray-600 dark:text-gray-400 justify-center">
                         <label
                           htmlFor="file-upload"
                           className="relative cursor-pointer rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none"
                         >
-                          <span>Upload a file</span>
+                          <span>Upload files</span>
                           <input
                             id="file-upload"
                             name="file-upload"
@@ -318,13 +332,14 @@ export default function CaptionGenerator() {
                             ref={fileInputRef}
                             className="sr-only"
                             accept="image/*"
+                            multiple
                             onChange={handleImageChange}
                           />
                         </label>
                         <p className="pl-1">or drag and drop</p>
                       </div>
                       <p className="text-xs text-gray-500 dark:text-gray-400">
-                        PNG, JPG, GIF up to 10MB
+                        PNG, JPG, GIF up to 10MB each ({5 - imagePreviews.length} remaining)
                       </p>
                     </>
                   )}

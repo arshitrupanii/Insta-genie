@@ -1,3 +1,4 @@
+
 'use client'
 
 import { useTheme } from 'next-themes'
@@ -9,11 +10,13 @@ export function ThemeToggle() {
   return (
     <button
       onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-      className="rounded-lg p-2 hover:bg-gray-100 dark:hover:bg-gray-800"
+      className="p-2 rounded-lg text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors relative"
+      aria-label="Toggle theme"
     >
-      <span className="sr-only">Toggle theme</span>
-      <SunIcon className="h-5 w-5 block dark:hidden" />
-      <MoonIcon className="h-5 w-5 hidden dark:block" />
+      <div className="relative w-5 h-5">
+        <SunIcon className="absolute h-5 w-5 transition-all dark:opacity-0" />
+        <MoonIcon className="absolute h-5 w-5 transition-all opacity-0 dark:opacity-100" />
+      </div>
     </button>
   )
 }
