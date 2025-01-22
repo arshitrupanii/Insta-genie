@@ -14,18 +14,17 @@ interface ChannelStats {
 
 export default function YoutubeAnalytics() {
   const [channelUrl, setChannelUrl] = useState('')
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(false)   
   const [stats, setStats] = useState<ChannelStats | null>(null)
   const [error, setError] = useState('')
-  const [channelId, setChannelId] = useState('')
   const [channelName, setChannelName] = useState('')
   const [subscriberCount, setSubscriberCount] = useState('')
   const [totalViews, setTotalViews] = useState('')
   const [channelDescription, setChannelDescription] = useState('')
   const [creationDate, setCreationDate] = useState('')
-  const [customUrl, setCustomUrl] = useState('')
   const [channelThumbnail, setChannelThumbnail] = useState('')
   const [country, setCountry] = useState('')
+  const [analysisPerformed, setAnalysisPerformed] = useState(false)
 
   const analyzeChannel = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -65,15 +64,16 @@ export default function YoutubeAnalytics() {
         const stats = channelInfo.statistics
 
         // Set channel information
-        setChannelId(channelInfo.id || 'N/A')
         setChannelName(channelInfo.snippet?.title || 'N/A')
         setSubscriberCount(stats.subscriberCount || 'N/A')
         setTotalViews(stats.viewCount || 'N/A')
         setChannelDescription(channelInfo.snippet?.description || 'N/A')
         setCreationDate(channelInfo.snippet?.publishedAt || 'N/A')
-        setCustomUrl(channelInfo.snippet?.customUrl || 'N/A')
         setChannelThumbnail(channelInfo.snippet?.thumbnails?.default?.url || '')
         setCountry(channelInfo.snippet?.country || 'N/A')
+
+        // Log the channel name to verify it's being set
+        console.log('Channel Name:', channelInfo.snippet?.title);
 
         // Calculate average engagement
         const avgEngagement = calculateAvgEngagement(stats)
@@ -84,6 +84,9 @@ export default function YoutubeAnalytics() {
           performanceScore: calculatePerformanceScore(stats),
           lastUpdated: new Date().toLocaleString()
         })
+
+        // Set analysis performed to true
+        setAnalysisPerformed(true);
       } else {
         throw new Error('Channel not found or invalid handle')
       }
@@ -187,7 +190,7 @@ export default function YoutubeAnalytics() {
         </form>
 
         {/* Channel Information Card */}
-        {channelName && (
+        {analysisPerformed && channelName && (
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6 flex flex-col items-center">
             <Image 
               src={channelThumbnail} 
@@ -201,37 +204,29 @@ export default function YoutubeAnalytics() {
         )}
 
         {/* Channel Details Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-10">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Channel ID</h3>
-            <p className="text-gray-500 dark:text-gray-400">{channelId}</p>
+        {analysisPerformed && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-10">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Subscribers</h3>
+              <p className="text-gray-500 dark:text-gray-400">{subscriberCount}</p>
+            </div>
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Total Views</h3>
+              <p className="text-gray-500 dark:text-gray-400">{totalViews}</p>
+            </div>
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Created On</h3>
+              <p className="text-gray-500 dark:text-gray-400">{new Date(creationDate).toLocaleDateString()}</p>
+            </div>
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Country</h3>
+              <p className="text-gray-500 dark:text-gray-400">{country}</p>
+            </div>
           </div>
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Subscribers</h3>
-            <p className="text-gray-500 dark:text-gray-400">{subscriberCount}</p>
-          </div>
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Total Views</h3>
-            <p className="text-gray-500 dark:text-gray-400">{totalViews}</p>
-          </div>
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Created On</h3>
-            <p className="text-gray-500 dark:text-gray-400">{new Date(creationDate).toLocaleDateString()}</p>
-          </div>
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Custom URL</h3>
-            <p className="text-gray-500 dark:text-gray-400">
-              <a href={`https://www.youtube.com/${customUrl}`} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">{customUrl}</a>
-            </p>
-          </div>
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Country</h3>
-            <p className="text-gray-500 dark:text-gray-400">{country}</p>
-          </div>
-        </div>
+        )}
 
         {/* Full-Width Description Card */}
-        {channelDescription && (
+        {analysisPerformed && channelDescription && (
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6 col-span-1 sm:col-span-2">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Description</h3>
             <p className="text-gray-500 dark:text-gray-400">{channelDescription}</p>
@@ -246,7 +241,7 @@ export default function YoutubeAnalytics() {
         )}
 
         {/* Results Card */}
-        {stats && (
+        {analysisPerformed && stats && (
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
             <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
               Channel Analytics
