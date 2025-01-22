@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { FaYoutube, FaChartLine } from 'react-icons/fa'
+import Image from 'next/image'
 
 interface ChannelStats {
   totalPosts: number;
@@ -138,7 +139,7 @@ export default function YoutubeAnalytics() {
             YouTube Channel Analytics
           </h1>
           <p className="mt-2 text-lg text-gray-600 dark:text-gray-400">
-            Analyze any YouTube channel's performance metrics
+            Analyze any YouTube channel&apos;s performance metrics
           </p>
         </div>
 
@@ -183,7 +184,13 @@ export default function YoutubeAnalytics() {
         {/* Channel Information Card */}
         {channelName && (
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6 flex flex-col items-center">
-            <img src={channelThumbnail} alt="Channel Thumbnail" className="w-32 h-32 rounded-full mb-4" />
+            <Image 
+              src={channelThumbnail} 
+              alt="Channel Thumbnail" 
+              width={128}
+              height={128}
+              className="rounded-full mb-4" 
+            />
             <h2 className="text-xl font-semibold mb-2 text-gray-900 dark:text-white">{channelName}</h2>
           </div>
         )}
