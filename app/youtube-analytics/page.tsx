@@ -36,6 +36,10 @@ export default function YoutubeAnalytics() {
       const channelId = extractChannelId(channelUrl)
       const apiKey = process.env.NEXT_PUBLIC_YOUTUBE_API_KEY
 
+      // Log the API key and channel ID for debugging
+      console.log('API Key:', apiKey)
+      console.log('Channel ID:', channelId)
+
       // If the extracted ID is a handle, resolve it to a channel ID
       let resolvedChannelId = channelId
       if (!/^[a-zA-Z0-9_-]{24}$/.test(channelId)) { // Check if it's not a valid channel ID
@@ -86,6 +90,7 @@ export default function YoutubeAnalytics() {
     } catch (err) {
       const errorMessage = (err as Error).message || 'Failed to analyze channel. Please try again.'
       setError(errorMessage)
+      console.error('Error:', errorMessage)
     } finally {
       setLoading(false)
     }
