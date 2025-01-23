@@ -21,6 +21,15 @@ const NICHE_SUGGESTIONS = [
   { label: 'Business', examples: ['Entrepreneurship', 'Marketing tips', 'Business growth'] },
 ]
 
+const TRENDING_HASHTAGS = {
+  Travel: ['#AdventureAwaits', '#Wanderlust', '#TravelDiaries'],
+  Food: ['#Foodie', '#InstaFood', '#Yummy'],
+  Fitness: ['#FitLife', '#WorkoutMotivation', '#HealthyLiving'],
+  Fashion: ['#OOTD', '#FashionInspo', '#StyleGoals'],
+  Tech: ['#TechTrends', '#Gadgets', '#Innovation'],
+  Business: ['#Entrepreneur', '#BusinessTips', '#SuccessMindset'],
+}
+
 const PROMPT_TEMPLATE = `Given the content niche: "{{niche}}"
 
 Please generate 5 creative content ideas with photo suggestions, each matching a different tone:
@@ -34,31 +43,57 @@ Photo Suggestion: [Describe an appropriate photo setup that matches this tone]
 
 Keep suggestions specific, actionable, and aligned with both the niche and tone. `
 
-const CAPTION_TEMPLATE = `Generate an engaging caption in Hinglish (mix of Hindi and English) for the following niche: "{{niche}}"
-Tone: {{selectedTone}}
+const CAPTION_TEMPLATE = `Generate an engaging Instagram caption for a user-uploaded video or image. The caption must meet the following requirements:
 
-Please provide 3 different Hinglish caption options. Each caption should include:
-1. Start with 2-3 relevant emojis that match the niche and tone
-2. Attention-grabbing opening line in Hinglish
-3. Main content in Hinglish with natural emoji usage (✨, 🌟, 💫, 🔥, etc.)
-4. One engaging question or call-to-action in Hinglish
-5. Line break, then 5-7 relevant hashtags (mix of English and Hindi)
+1. **Content Analysis**
+   - Analyze the uploaded media to determine its primary theme (e.g., travel, food, fashion, fitness, tech, humor, pets, etc.).
+   - Identify key elements visible in the image or video, such as objects, actions, colors, location, mood, or emotions.
+   - Consider the media's tone (e.g., fun, adventurous, romantic, professional, humorous) to match the caption's style.
 
-Example format:
-[Emojis] Kya aap ready hai? ✨
-Main content with natural Hinglish flow 🌟 Engaging story or tips
-Aap kya sochte hai? Comment mein batayein! 💫
+2. **Caption Structure**
+   - Create a caption in three parts:
+     - **Hook:** Start with an attention-grabbing phrase, question, or emoji that evokes curiosity or emotion to make it stand out in the Instagram feed.
+     - **Body:** Use descriptive and engaging language to elaborate on the content. Paint a vivid picture with words, incorporating sensory details (sights, sounds, feelings) to draw the reader in. Use relatable language that resonates with the audience.
+     - **Call to Action (CTA):** Encourage interaction by asking a thought-provoking question, suggesting a share, or prompting users to comment, like, or save.
 
-#hashtag1 #hashtag2 #YourNiche #trending #viral
+3. **Use of Emojis**
+   - Strategically use emojis to enhance the visual appeal and mood of the caption. Match emojis to the theme or specific objects in the media (e.g., 🌴 for travel, 🍕 for food).
+   - Use emojis sparingly and effectively to avoid overcrowding the caption, ensuring they complement the text.
 
-Keep the tone {{toneDescription}} while writing in natural Hinglish that resonates with Indian audience.
+4. **Hashtags**
+   - Generate 5-10 relevant hashtags that align with the content's theme. Include a mix of popular and niche hashtags for maximum reach.
+   - Ensure hashtags are specific and well-researched to match the target audience and increase discoverability.
 
-Example tones in Hinglish:
-👔 Formal: Professional par desi touch ke saath
-🙂 Friendly: Dost jaisa, casual aur approachable
-😎 Casual: Masti bhara aur fun
-💼 Professional: Business-minded par friendly
-💪 Confident: Josh bhara aur inspiring`
+5. **Tone**
+   - Adapt the tone of the caption to the content's purpose and audience (e.g., casual, trendy, professional, or inspirational).
+   - Use playful, motivational, or heartfelt language if the content is fun or action-packed. For professional content, keep the tone polished and engaging.
+
+**Examples:**
+- Example 1: Travel Video of a Sunset on a Beach
+  🎥 "Another day, another paradise moment 🌅✨ Watching the sun kiss the ocean never gets old! 🌊💛
+  What's your dream sunset destination? 🗺️
+  #BeachVibes #TravelDiaries #GoldenHour #Wanderlust"
+
+- Example 2: Food Photo of a Gourmet Burger
+  🍔 "The juiciest bite you'll take today 🤤🔥 Who's hungry for this mouthwatering masterpiece? 🍟❤️
+  Drop a 🍔 if burgers are your love language!
+  #FoodieGoals #BurgerLover #DeliciousBites #NomNom"
+
+- Example 3: Fitness Video of a Gym Workout
+  💪 "Sweat, hustle, and repeat! 🔥 No excuses, just results 🏋️‍♂️ Who's hitting the gym today? 👊
+  Tag your gym buddy below ⬇️
+  #FitnessJourney #GymMotivation #FitLife #NoPainNoGain"
+
+- Example 4: Pet Video of a Playful Puppy
+  🐶 "Cuteness overload! 🐾💖 This little furball's energy is paw-sitively contagious! 🦴🐕
+  Who else loves puppy zoomies? 🥰
+  #DogLover #PuppyLove #FurryFriends #TooCute"
+
+**Notes for Gemini AI:**
+- Ensure the caption fits within Instagram's 2,200-character limit.
+- Optimize for both human engagement and Instagram's algorithm by using relatable language and searchable hashtags.
+- Keep the content fun, natural, and easy to read while aligning with trends.
+- Aim for a conversational tone that feels authentic and relatable, as if the user is sharing a personal experience or story.`
 
 export default function CaptionGenerator() {
   const [niche, setNiche] = useState('')
@@ -68,6 +103,7 @@ export default function CaptionGenerator() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [imagePreviews, setImagePreviews] = useState<string[]>([])
+  const [videoPreviews, setVideoPreviews] = useState<string[]>([])
   const fileInputRef = useRef<HTMLInputElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const suggestionsRef = useRef<HTMLDivElement>(null)
@@ -131,6 +167,33 @@ export default function CaptionGenerator() {
     })
   }
 
+  const handleVideoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || [])
+
+    // Check if adding new videos would exceed the limit
+    if (videoPreviews.length + files.length > 3) {
+      setError('Maximum 3 videos allowed')
+      return
+    }
+
+    files.forEach(file => {
+      if (file.size > 100 * 1024 * 1024) {
+        setError('Each video must be less than 100MB')
+        return
+      }
+
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setVideoPreviews(prev => [...prev, reader.result as string])
+        setError(null)
+      }
+      reader.onerror = () => {
+        setError('Failed to read video file')
+      }
+      reader.readAsDataURL(file)
+    })
+  }
+
   const removeImage = (index: number) => {
     setImagePreviews(prev => prev.filter((_, i) => i !== index))
     setError(null)
@@ -139,13 +202,26 @@ export default function CaptionGenerator() {
     }
   }
 
+  const removeVideo = (index: number) => {
+    setVideoPreviews(prev => prev.filter((_, i) => i !== index))
+    setError(null)
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    // Check if at least one media type is uploaded
+    if (imagePreviews.length === 0 && videoPreviews.length === 0) {
+      setError('Please upload at least one image or video.')
+      return
+    }
+
+    // Check if a tone is selected
     if (!selectedTone) {
       setError('Please select a tone')
       return
     }
-    
+
     setLoading(true)
     setError(null)
 
@@ -156,11 +232,11 @@ export default function CaptionGenerator() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          niche,
+          niche: niche.trim() || 'General',
           tone: selectedTone.name,
           toneDescription: selectedTone.description,
           prompt: CAPTION_TEMPLATE
-            .replace('{{niche}}', niche)
+            .replace('{{niche}}', niche.trim() || 'General')
             .replace('{{selectedTone}}', selectedTone.name)
             .replace('{{toneDescription}}', selectedTone.description)
         }),
@@ -212,7 +288,7 @@ export default function CaptionGenerator() {
             {/* Niche Input */}
             <div className="relative">
               <label htmlFor="niche" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                What&apos;s your niche or content description?
+                What&apos;s your niche or content description? (optional)
               </label>
               <div className="relative">
                 <input
@@ -224,7 +300,6 @@ export default function CaptionGenerator() {
                   onFocus={() => setShowNicheSuggestions(true)}
                   placeholder="E.g., Travel, Food, Fitness"
                   className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                  required
                 />
                 {showNicheSuggestions && (
                   <div 
@@ -347,6 +422,64 @@ export default function CaptionGenerator() {
               </div>
             </div>
 
+            {/* Optional Video Upload */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Add videos for context (max 3)
+              </label>
+              <div className="mt-1 flex flex-col px-6 pt-5 pb-6 border-2 border-gray-300 dark:border-gray-600 border-dashed rounded-lg">
+                <div className="space-y-1 text-center">
+                  {videoPreviews.length > 0 ? (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-4">
+                      {videoPreviews.map((preview, index) => (
+                        <div key={index} className="relative group w-32 h-32">
+                          <video
+                            src={preview}
+                            controls
+                            className="h-32 w-32 rounded-lg object-cover"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removeVideo(index)}
+                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 shadow-sm"
+                            aria-label="Remove video"
+                          >
+                            <XMarkIcon className="h-4 w-4" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  ) : null}
+                  
+                  {videoPreviews.length < 3 && (
+                    <>
+                      <div className="flex text-sm text-gray-600 dark:text-gray-400 justify-center">
+                        <label
+                          htmlFor="video-upload"
+                          className="relative cursor-pointer rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none"
+                        >
+                          <span>Upload videos</span>
+                          <input
+                            id="video-upload"
+                            name="video-upload"
+                            type="file"
+                            accept="video/*"
+                            multiple
+                            onChange={handleVideoChange}
+                            className="sr-only"
+                          />
+                        </label>
+                        <p className="pl-1">or drag and drop</p>
+                      </div>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        MP4, AVI, MOV up to 100MB each ({3 - videoPreviews.length} remaining)
+                      </p>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+
             {error && (
               <div className="text-red-500 text-sm">
                 {error}
@@ -355,7 +488,7 @@ export default function CaptionGenerator() {
 
             <button
               type="submit"
-              disabled={loading || !selectedTone || !niche.trim()}
+              disabled={loading || !selectedTone}
               className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {loading ? (
