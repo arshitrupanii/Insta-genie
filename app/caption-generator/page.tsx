@@ -210,12 +210,6 @@ export default function CaptionGenerator() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    // Check if at least one media type is uploaded
-    if (imagePreviews.length === 0 && videoPreviews.length === 0) {
-      setError('Please upload at least one image or video.')
-      return
-    }
-
     // Check if a tone is selected
     if (!selectedTone) {
       setError('Please select a tone')
@@ -300,6 +294,7 @@ export default function CaptionGenerator() {
                   onFocus={() => setShowNicheSuggestions(true)}
                   placeholder="E.g., Travel, Food, Fitness"
                   className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  required
                 />
                 {showNicheSuggestions && (
                   <div 
