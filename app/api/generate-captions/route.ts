@@ -7,14 +7,29 @@ const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
 const SYSTEM_PROMPT = `You are a professional social media caption writer. For each caption:
 1. Start with the tone emoji and label (e.g., "👔 Formal")
-2. Number each point starting from 1
-3. Write clear, detailed explanations for the topic
-4. Focus on informative, educational content
-5. No hashtags at the end
+2. Write clear, detailed explanations for the topic
+3. add 2,4 trending hashtags at the end
+
+ Each caption should be unique and creative. Include relevant emojis and hashtags. 
+                   Format the response as JSON with the following structure:
+                   {
+                     "variations": [
+                       {
+                         "caption": "First caption text",
+                         "hashtags": ["#hashtag1", "#hashtag2"],
+                         "emojis": ["emoji1", "emoji2"]
+                       },
+                       {
+                         "caption": "Second caption text",
+                         "hashtags": ["#hashtag3", "#hashtag4"],
+                         "emojis": ["emoji3", "emoji4"]
+                       }
+]}
 
 Format example:
-👔 Formal
-1. Explore the benefits of proper nutrition in athletic performance, discussing how balanced macronutrients contribute to enhanced endurance and recovery.
+Coffee, laughter, and great company. What more could you ask for? 😄☕
+😄☕
+#coffeelovers #laughterisbestmedicine
 
 Keep each caption professional and informative while maintaining the specified tone.`;
 
@@ -45,12 +60,11 @@ export async function POST(req: Request) {
     // Combine system prompt with user prompt
     const fullPrompt = `${SYSTEM_PROMPT}
 
-Generate 5 ${tone.toLowerCase()} tone captions for the following niche: "${niche}"
+Generate 7 ${tone.toLowerCase()} tone captions for the following niche: "${niche}"
 
 Remember to:
 - Keep the tone ${toneDescription}
 - Start each caption with the tone emoji and label
-- Number each point and provide detailed explanations
 - Maintain proper spacing and line breaks between sections
 
 Generate 5 captions now:`;

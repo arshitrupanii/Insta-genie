@@ -30,71 +30,6 @@ const TRENDING_HASHTAGS = {
   Business: ['#Entrepreneur', '#BusinessTips', '#SuccessMindset'],
 }
 
-const PROMPT_TEMPLATE = `Given the content niche: "{{niche}}"
-
-Please generate 5 creative content ideas with photo suggestions, each matching a different tone:
-
-{{#tones}}
-{{emoji}} {{name}} TONE:
-Content Idea: [Generate a {{description}} content idea for this niche]
-Photo Suggestion: [Describe an appropriate photo setup that matches this tone]
-
-{{/tones}}
-
-Keep suggestions specific, actionable, and aligned with both the niche and tone. `
-
-const CAPTION_TEMPLATE = `Generate an engaging Instagram caption for a user-uploaded video or image. The caption must meet the following requirements:
-
-1. **Content Analysis**
-   - Analyze the uploaded media to determine its primary theme (e.g., travel, food, fashion, fitness, tech, humor, pets, etc.).
-   - Identify key elements visible in the image or video, such as objects, actions, colors, location, mood, or emotions.
-   - Consider the media's tone (e.g., fun, adventurous, romantic, professional, humorous) to match the caption's style.
-
-2. **Caption Structure**
-   - Create a caption in three parts:
-     - **Hook:** Start with an attention-grabbing phrase, question, or emoji that evokes curiosity or emotion to make it stand out in the Instagram feed.
-     - **Body:** Use descriptive and engaging language to elaborate on the content. Paint a vivid picture with words, incorporating sensory details (sights, sounds, feelings) to draw the reader in. Use relatable language that resonates with the audience.
-     - **Call to Action (CTA):** Encourage interaction by asking a thought-provoking question, suggesting a share, or prompting users to comment, like, or save.
-
-3. **Use of Emojis**
-   - Strategically use emojis to enhance the visual appeal and mood of the caption. Match emojis to the theme or specific objects in the media (e.g., 🌴 for travel, 🍕 for food).
-   - Use emojis sparingly and effectively to avoid overcrowding the caption, ensuring they complement the text.
-
-4. **Hashtags**
-   - Generate 5-10 relevant hashtags that align with the content's theme. Include a mix of popular and niche hashtags for maximum reach.
-   - Ensure hashtags are specific and well-researched to match the target audience and increase discoverability.
-
-5. **Tone**
-   - Adapt the tone of the caption to the content's purpose and audience (e.g., casual, trendy, professional, or inspirational).
-   - Use playful, motivational, or heartfelt language if the content is fun or action-packed. For professional content, keep the tone polished and engaging.
-
-**Examples:**
-- Example 1: Travel Video of a Sunset on a Beach
-  🎥 "Another day, another paradise moment 🌅✨ Watching the sun kiss the ocean never gets old! 🌊💛
-  What's your dream sunset destination? 🗺️
-  #BeachVibes #TravelDiaries #GoldenHour #Wanderlust"
-
-- Example 2: Food Photo of a Gourmet Burger
-  🍔 "The juiciest bite you'll take today 🤤🔥 Who's hungry for this mouthwatering masterpiece? 🍟❤️
-  Drop a 🍔 if burgers are your love language!
-  #FoodieGoals #BurgerLover #DeliciousBites #NomNom"
-
-- Example 3: Fitness Video of a Gym Workout
-  💪 "Sweat, hustle, and repeat! 🔥 No excuses, just results 🏋️‍♂️ Who's hitting the gym today? 👊
-  Tag your gym buddy below ⬇️
-  #FitnessJourney #GymMotivation #FitLife #NoPainNoGain"
-
-- Example 4: Pet Video of a Playful Puppy
-  🐶 "Cuteness overload! 🐾💖 This little furball's energy is paw-sitively contagious! 🦴🐕
-  Who else loves puppy zoomies? 🥰
-  #DogLover #PuppyLove #FurryFriends #TooCute"
-
-**Notes for Gemini AI:**
-- Ensure the caption fits within Instagram's 2,200-character limit.
-- Optimize for both human engagement and Instagram's algorithm by using relatable language and searchable hashtags.
-- Keep the content fun, natural, and easy to read while aligning with trends.
-- Aim for a conversational tone that feels authentic and relatable, as if the user is sharing a personal experience or story.`
-
 export default function CaptionGenerator() {
   const [niche, setNiche] = useState('')
   const [showNicheSuggestions, setShowNicheSuggestions] = useState(false)
@@ -107,6 +42,25 @@ export default function CaptionGenerator() {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const suggestionsRef = useRef<HTMLDivElement>(null)
+
+  const CAPTION_TEMPLATE = `Generate ${5} different Instagram captions for the topic "${niche}" in a ${selectedTone} tone. 
+Each caption should be unique and creative. Include relevant emojis and hashtags. 
+Format the response as JSON with the following structure:
+{
+  "variations": [
+    {
+      "caption": "First caption text",
+      "hashtags": ["#hashtag1", "#hashtag2"],
+      "emojis": ["emoji1", "emoji2"]
+    },
+    {
+      "caption": "Second caption text",
+      "hashtags": ["#hashtag3", "#hashtag4"],
+      "emojis": ["emoji3", "emoji4"]
+    }
+    // ... more variations
+  ]
+}`
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
