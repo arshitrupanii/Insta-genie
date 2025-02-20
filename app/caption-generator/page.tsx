@@ -8,26 +8,18 @@ const TONE_LABELS = [
   { emoji: '🙂', name: 'Friendly', description: 'Warm and approachable' },
   { emoji: '😎', name: 'Casual', description: 'Laid-back and fun' },
   { emoji: '💼', name: 'Professional', description: 'Business-focused but personable' },
-  { emoji: '💪', name: 'Confident', description: 'Bold and inspiring' }
-]
+  { emoji: '💪', name: 'Confident', description: 'Bold and inspiring' },
+  { emoji: '🔥', name: 'Motivational', description: 'Energetic and uplifting' } // New tone added
+];
+
 
 const NICHE_SUGGESTIONS = [
-  { label: 'Travel', examples: ['Adventure travel', 'Luxury destinations', 'Budget backpacking'] },
-  { label: 'Food', examples: ['Restaurant reviews', 'Recipe sharing', 'Food photography'] },
+  { label: 'Motivation', examples: ['Morning motivation', 'Success mindset', 'Overcoming challenges'] },
+  { label: 'Food', examples: ['Restaurant reviews', 'Recipe sharing', 'Street food exploration'] },
   { label: 'Fitness', examples: ['Workout tips', 'Healthy lifestyle', 'Gym motivation'] },
-  { label: 'Fashion', examples: ['Style tips', 'Outfit inspiration', 'Fashion trends'] },
-  { label: 'Tech', examples: ['Product reviews', 'Tech news', 'Digital lifestyle'] },
-  { label: 'Business', examples: ['Entrepreneurship', 'Marketing tips', 'Business growth'] },
-]
+  { label: 'Business', examples: ['Entrepreneurship', 'Marketing strategies', 'Personal branding'] },
+];
 
-const TRENDING_HASHTAGS = {
-  Travel: ['#AdventureAwaits', '#Wanderlust', '#TravelDiaries'],
-  Food: ['#Foodie', '#InstaFood', '#Yummy'],
-  Fitness: ['#FitLife', '#WorkoutMotivation', '#HealthyLiving'],
-  Fashion: ['#OOTD', '#FashionInspo', '#StyleGoals'],
-  Tech: ['#TechTrends', '#Gadgets', '#Innovation'],
-  Business: ['#Entrepreneur', '#BusinessTips', '#SuccessMindset'],
-}
 
 export default function CaptionGenerator() {
   const [niche, setNiche] = useState('')

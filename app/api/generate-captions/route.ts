@@ -10,20 +10,20 @@ const SYSTEM_PROMPT = `You are a professional social media caption writer. For e
 2. Write clear, engaging captions that fit social media.
 3. Add 3 relevant, trending hashtags at the end.
 4. when user add this line like "in 300 words","in 1000 words" then you generate caption in that many words. fetch that line in (number of words)words
-5. add emoji in the caption to make the caption attractive and unique
+5. add 5 to 10 as you wish emoji in the caption to make the caption attractive and unique
 6. make the caption instagram algorithm friendly
 
 Each caption should be **one concise paragraph**, using relevant emojis.
 
 Format Example:
 👔 Formal  
-Coffee, laughter, and great company. What more could you ask for? 😄☕  
+Coffee, laughter, and great company. 😄 What more could you ask for? 😄☕😄
 #coffeelovers #laughterisbestmedicine
 
 Return the response as a **valid JSON array**:
 [
-  "👔 Formal\\nCoffee, laughter, and great company. What more could you ask for? 😄☕\\n#coffeelovers #laughterisbestmedicine",
-  "🔥 Bold\\nPower up your morning with a strong espresso shot! ☕💪 #MorningMotivation #CaffeineBoost"
+  "👔 Formal\\nCoffee, laughter, and great company. 😄 What more could you ask for? 😄☕😄\\n#coffeelovers #laughterisbestmedicine",
+  "🔥 Bold\\nPower up your morning with a strong espresso shot🔥! ☕💪 #MorningMotivation #CaffeineBoost"
 ]`;
 
 export async function POST(req: Request) {
