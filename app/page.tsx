@@ -39,7 +39,7 @@ export default function Home() {
           <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 sm:py-16 md:py-24">
             <div className="mx-auto max-w-2xl text-center">
               <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight gradient-text mb-6 sm:mb-8 leading-tight">
-                Create Better Content with AI
+                Create Better Caption with AI
               </h1>
               <p className="text-xs sm:text-sm md:text-lg text-gray-600 dark:text-gray-300">
                 <span className="block sm:hidden">
