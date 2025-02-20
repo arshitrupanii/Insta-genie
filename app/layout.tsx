@@ -7,8 +7,8 @@ import Navbar from '@/components/navbar'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'AI Creator Tool',
-  description: 'AI-powered platform for content creators',
+  title: 'InstaGenie – AI-Powered Instagram Caption Generator 🚀✨',
+  description: 'AI-powered platform for instagram user who creates post and need captions.Generate creative, engaging, and AI-powered Instagram captions instantly! 🚀 Just enter your keywords, and let our smart AI craft the perfect caption to boost your posts. Try it now for free! 💡📸',
 }
 
 export default function RootLayout({
