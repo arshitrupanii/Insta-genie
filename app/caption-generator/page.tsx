@@ -2,7 +2,6 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { ArrowPathIcon, PhotoIcon, XMarkIcon } from '@heroicons/react/24/outline'
-import Image from 'next/image'
 
 const TONE_LABELS = [
   { emoji: '👔', name: 'Formal', description: 'Elegant and sophisticated' },
@@ -37,8 +36,6 @@ export default function CaptionGenerator() {
   const [captions, setCaptions] = useState<string[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [imagePreviews, setImagePreviews] = useState<string[]>([])
-  const [videoPreviews, setVideoPreviews] = useState<string[]>([])
   const fileInputRef = useRef<HTMLInputElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const suggestionsRef = useRef<HTMLDivElement>(null)
@@ -94,73 +91,7 @@ Format the response as JSON with the following structure:
     setShowNicheSuggestions(false)
   }
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || [])
-    
-    // Check if adding new files would exceed the limit
-    if (imagePreviews.length + files.length > 5) {
-      setError('Maximum 5 images allowed')
-      return
-    }
-
-    files.forEach(file => {
-      if (file.size > 10 * 1024 * 1024) {
-        setError('Each image must be less than 10MB')
-        return
-      }
-      
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        setImagePreviews(prev => [...prev, reader.result as string])
-        setError(null)
-      }
-      reader.onerror = () => {
-        setError('Failed to read image file')
-      }
-      reader.readAsDataURL(file)
-    })
-  }
-
-  const handleVideoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || [])
-
-    // Check if adding new videos would exceed the limit
-    if (videoPreviews.length + files.length > 3) {
-      setError('Maximum 3 videos allowed')
-      return
-    }
-
-    files.forEach(file => {
-      if (file.size > 100 * 1024 * 1024) {
-        setError('Each video must be less than 100MB')
-        return
-      }
-
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        setVideoPreviews(prev => [...prev, reader.result as string])
-        setError(null)
-      }
-      reader.onerror = () => {
-        setError('Failed to read video file')
-      }
-      reader.readAsDataURL(file)
-    })
-  }
-
-  const removeImage = (index: number) => {
-    setImagePreviews(prev => prev.filter((_, i) => i !== index))
-    setError(null)
-    if (fileInputRef.current) {
-      fileInputRef.current.value = ''
-    }
-  }
-
-  const removeVideo = (index: number) => {
-    setVideoPreviews(prev => prev.filter((_, i) => i !== index))
-    setError(null)
-  }
-
+  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
@@ -236,7 +167,7 @@ Format the response as JSON with the following structure:
             {/* Niche Input */}
             <div className="relative">
               <label htmlFor="niche" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                What&apos;s your niche or content description? (optional)
+                What&apos;s your niche or content description?
               </label>
               <div className="relative">
                 <input
@@ -306,126 +237,6 @@ Format the response as JSON with the following structure:
                     </div>
                   </button>
                 ))}
-              </div>
-            </div>
-
-            {/* Optional Image Upload */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Add images for context (max 5)
-              </label>
-              <div className="mt-1 flex flex-col px-6 pt-5 pb-6 border-2 border-gray-300 dark:border-gray-600 border-dashed rounded-lg">
-                <div className="space-y-1 text-center">
-                  {imagePreviews.length > 0 ? (
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-4">
-                      {imagePreviews.map((preview, index) => (
-                        <div key={index} className="relative group w-32 h-32">
-                          <Image
-                            src={preview}
-                            alt={`Preview ${index + 1}`}
-                            width={128}
-                            height={128}
-                            className="h-32 w-32 rounded-lg object-cover"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => removeImage(index)}
-                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 shadow-sm"
-                            aria-label="Remove image"
-                          >
-                            <XMarkIcon className="h-4 w-4" />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  ) : null}
-                  
-                  {imagePreviews.length < 5 && (
-                    <>
-                      <PhotoIcon className="mx-auto h-12 w-12 text-gray-400" />
-                      <div className="flex text-sm text-gray-600 dark:text-gray-400 justify-center">
-                        <label
-                          htmlFor="file-upload"
-                          className="relative cursor-pointer rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none"
-                        >
-                          <span>Upload files</span>
-                          <input
-                            id="file-upload"
-                            name="file-upload"
-                            type="file"
-                            ref={fileInputRef}
-                            className="sr-only"
-                            accept="image/*"
-                            multiple
-                            onChange={handleImageChange}
-                          />
-                        </label>
-                        <p className="pl-1">or drag and drop</p>
-                      </div>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        PNG, JPG, GIF up to 10MB each ({5 - imagePreviews.length} remaining)
-                      </p>
-                    </>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* Optional Video Upload */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Add videos for context (max 3)
-              </label>
-              <div className="mt-1 flex flex-col px-6 pt-5 pb-6 border-2 border-gray-300 dark:border-gray-600 border-dashed rounded-lg">
-                <div className="space-y-1 text-center">
-                  {videoPreviews.length > 0 ? (
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-4">
-                      {videoPreviews.map((preview, index) => (
-                        <div key={index} className="relative group w-32 h-32">
-                          <video
-                            src={preview}
-                            controls
-                            className="h-32 w-32 rounded-lg object-cover"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => removeVideo(index)}
-                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 shadow-sm"
-                            aria-label="Remove video"
-                          >
-                            <XMarkIcon className="h-4 w-4" />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  ) : null}
-                  
-                  {videoPreviews.length < 3 && (
-                    <>
-                      <div className="flex text-sm text-gray-600 dark:text-gray-400 justify-center">
-                        <label
-                          htmlFor="video-upload"
-                          className="relative cursor-pointer rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none"
-                        >
-                          <span>Upload videos</span>
-                          <input
-                            id="video-upload"
-                            name="video-upload"
-                            type="file"
-                            accept="video/*"
-                            multiple
-                            onChange={handleVideoChange}
-                            className="sr-only"
-                          />
-                        </label>
-                        <p className="pl-1">or drag and drop</p>
-                      </div>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        MP4, AVI, MOV up to 100MB each ({3 - videoPreviews.length} remaining)
-                      </p>
-                    </>
-                  )}
-                </div>
               </div>
             </div>
 
