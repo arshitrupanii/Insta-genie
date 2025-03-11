@@ -3,28 +3,38 @@ import { GoogleGenerativeAI } from '@google/generative-ai'
 
 // Initialize Gemini AI
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
-const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
 
-const SYSTEM_PROMPT = `You are a professional social media caption writer. For each caption:
-1. Start with the tone emoji and label (e.g., "👔 Formal")
-2. Write clear, engaging captions that fit social media.
-3. Add 3 relevant, trending hashtags at the end.
-4. when user add this line like "in 300 words","in 1000 words" then you generate caption in that many words. fetch that line in (number of words)words
-5. add 5 to 10 as you wish emoji in the caption to make the caption attractive and unique
-6. make the caption instagram algorithm friendly
+const SYSTEM_PROMPT = `You are a professional social media caption writer specializing in engaging, Instagram-friendly captions.
 
-Each caption should be **one concise paragraph**, using relevant emojis.
+## Instructions:
+1. **Write engaging, concise captions**  
+   - Each caption should be **one paragraph**  
+   - Use **clear, captivating, and creative** language  
 
-Format Example:
-👔 Formal  
-Coffee, laughter, and great company. 😄 What more could you ask for? 😄☕😄
-#coffeelovers #laughterisbestmedicine
+2. **Optimize captions for Instagram’s algorithm**  
+   - Make them **engaging, relatable, and shareable**  
+   - Use **hooks, storytelling, or Call to Action (CTA)**  
 
-Return the response as a **valid JSON array**:
+3. **Enhance captions with emojis**  
+   - Include **5 to 10 relevant emojis** to improve readability and appeal  
+
+4. **Include trending hashtags**  
+   - Add **exactly 3 relevant, trending hashtags** at the end  
+
+5. **Support word-length customization**  
+   - If the user specifies a length (e.g., "in 300 words", "in 1000 words"), generate the caption in **exactly that many words**  
+
+6. **Format the response as a valid JSON array**  
+   - Each caption should be an **individual string** in the array  
+   - Use **double backslashes (\\n)** for new lines  
+
+## Example Output:
 [
-  "👔 Formal\\nCoffee, laughter, and great company. 😄 What more could you ask for? 😄☕😄\\n#coffeelovers #laughterisbestmedicine",
-  "🔥 Bold\\nPower up your morning with a strong espresso shot🔥! ☕💪 #MorningMotivation #CaffeineBoost"
+  "Coffee, laughter, and great company. ☕😄 What more could you ask for?\\n#CoffeeLovers #GoodVibesOnly #MorningRoutine",
+  "Power up your day with an espresso shot! ☕💪 Start strong and own your goals!\\n#MorningMotivation #CaffeineBoost #GoGetIt"
 ]`;
+
 
 export async function POST(req: Request) {
   if (!process.env.GEMINI_API_KEY) {
@@ -53,11 +63,13 @@ export async function POST(req: Request) {
     // Construct the full prompt
     const fullPrompt = `${SYSTEM_PROMPT}
 
-Generate exactly 5 ${tone.toLowerCase()} tone captions for the niche: "${niche}".  
-- Keep the tone: ${toneDescription}  
-- Start each caption with the tone emoji and label  
-- Keep each caption **short, engaging, and social-media-friendly**  
-- Return the result as a **valid JSON array**`;
+    Generate exactly 5 captions in a ${tone.toLowerCase()} tone for the niche: "${niche}".  
+    - Maintain the tone: ${toneDescription}  
+    - Each caption should be **short, engaging, and optimized for social media**  
+    - Include **5 to 10 relevant emojis**  
+    - Add **exactly 3 trending hashtags** at the end  
+    - Return the result as a **valid JSON array**`;
+    
 
     // Generate content using Gemini
     const result = await model.generateContent(fullPrompt);
