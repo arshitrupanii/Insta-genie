@@ -1,103 +1,141 @@
-import { NextResponse } from 'next/server'
-import { GoogleGenerativeAI } from '@google/generative-ai'
+import { NextResponse } from 'next/server';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
-// Initialize Gemini AI
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
-const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+// Configuration and constants
+const GEMINI_MODEL = 'gemini-1.5-flash';
+const CAPTIONS_COUNT = 5;
 
-const SYSTEM_PROMPT = `You are a professional social media caption writer. For each caption:
-1. Start with the tone emoji and label (e.g., "👔 Formal")
-2. Write clear, engaging captions that fit social media.
-3. Add 3 relevant, trending hashtags at the end.
-4. when user add this line like "in 300 words","in 1000 words" then you generate caption in that many words. fetch that line in (number of words)words
-5. add 5 to 10 as you wish emoji in the caption to make the caption attractive and unique
-6. make the caption instagram algorithm friendly
+// System prompt for caption generation
+const SYSTEM_PROMPT = `You are a professional social media caption writer specializing in engaging, Instagram-friendly captions.
 
-Each caption should be **one concise paragraph**, using relevant emojis.
+Instructions:
+1. Write engaging, concise captions
+   - Each caption should be one paragraph
+   - Use clear, captivating, and creative language
+2. Optimize captions for Instagram's algorithm
+   - Make them engaging, relatable, and shareable
+   - Use hooks, storytelling, or Call to Action (CTA)
+3. Enhance captions with emojis
+   - Include 5 to 10 relevant emojis to improve readability and appeal
+4. Include trending hashtags
+   - Add exactly 3 relevant, trending hashtags at the end
+5. Maintain specified tone and niche
+   - Adapt language and style to the given tone and subject area
 
-Format Example:
-👔 Formal  
-Coffee, laughter, and great company. 😄 What more could you ask for? 😄☕😄
-#coffeelovers #laughterisbestmedicine
-
-Return the response as a **valid JSON array**:
+Example Output:
 [
-  "👔 Formal\\nCoffee, laughter, and great company. 😄 What more could you ask for? 😄☕😄\\n#coffeelovers #laughterisbestmedicine",
-  "🔥 Bold\\nPower up your morning with a strong espresso shot🔥! ☕💪 #MorningMotivation #CaffeineBoost"
+  "Coffee, laughter, and great company. ☕😄 What more could you ask for?\n#CoffeeLovers #GoodVibesOnly #MorningRoutine",
+  "Power up your day with an espresso shot! ☕💪 Start strong and own your goals!\n#MorningMotivation #CaffeineBoost #GoGetIt"
 ]`;
 
-export async function POST(req: Request) {
-  if (!process.env.GEMINI_API_KEY) {
-    console.error('GEMINI_API_KEY is not set');
-    return NextResponse.json(
-      { error: 'Gemini API key is not configured' },
-      { status: 500 }
-    );
-  }
+// Type definitions for input and response
+interface CaptionRequest {
+  prompt: string;
+  niche: string;
+  tone: string;
+  toneDescription: string;
+}
 
+interface CaptionResponse {
+  captions: string[];
+}
+
+// Initialize Gemini AI
+const initializeGeminiAI = () => {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    throw new Error('GEMINI_API_KEY is not configured');
+  }
+  
+  const genAI = new GoogleGenerativeAI(apiKey);
+  return genAI.getGenerativeModel({ model: GEMINI_MODEL });
+};
+
+// Construct full generation prompt
+const createFullPrompt = (request: CaptionRequest): string => {
+  return `${SYSTEM_PROMPT}
+Generate exactly ${CAPTIONS_COUNT} captions in a ${request.tone.toLowerCase()} tone for the niche: "${request.niche}".
+- Maintain the tone: ${request.toneDescription}
+- Each caption should be short, engaging, and optimized for social media
+- Include 5 to 10 relevant emojis
+- Add exactly 3 trending hashtags at the end
+- Return the result as a valid JSON array`;
+};
+
+// Robust parsing of AI response
+const processAIResponse = (text: string): string[] => {
+  try {
+    // Remove code block markers if present
+    const cleanedText = text
+      .replace(/^```(json)?/m, '')  // Remove opening code block
+      .replace(/```$/m, '')         // Remove closing code block
+      .trim();
+
+    // Parse the cleaned text
+    const captions = JSON.parse(cleanedText);
+    
+    if (!Array.isArray(captions) || captions.length === 0) {
+      throw new Error('No valid captions generated');
+    }
+    
+    return captions;
+  } catch (error) {
+    console.error('Failed to parse AI response:', error);
+    console.error('Raw AI response:', text);
+    
+    // Additional parsing attempt for problematic responses
+    try {
+      // Try extracting JSON-like content
+      const jsonMatch = text.match(/\[.*\]/s);
+      if (jsonMatch) {
+        const extractedJson = jsonMatch[0].trim();
+        const captions = JSON.parse(extractedJson);
+        return captions;
+      }
+    } catch (extractError) {
+      console.error('Extraction attempt failed:', extractError);
+    }
+
+    throw new Error('Invalid caption format from AI');
+  }
+};
+
+// Main handler for caption generation
+export async function POST(req: Request) {
   try {
     // Parse request body
-    const body = await req.json();
+    const body: CaptionRequest = await req.json();
     const { prompt, niche, tone, toneDescription } = body;
 
+    // Validate input
     if (!prompt || !niche || !tone) {
-      console.error('Missing required fields:', { prompt, niche, tone });
       return NextResponse.json(
         { error: 'Missing required fields: prompt, niche, and tone are required' },
         { status: 400 }
       );
     }
 
-    console.log('Generating captions for:', { niche, tone, toneDescription });
+    // Initialize Gemini model
+    const model = initializeGeminiAI();
 
-    // Construct the full prompt
-    const fullPrompt = `${SYSTEM_PROMPT}
-
-Generate exactly 5 ${tone.toLowerCase()} tone captions for the niche: "${niche}".  
-- Keep the tone: ${toneDescription}  
-- Start each caption with the tone emoji and label  
-- Keep each caption **short, engaging, and social-media-friendly**  
-- Return the result as a **valid JSON array**`;
-
-    // Generate content using Gemini
+    // Generate captions
+    const fullPrompt = createFullPrompt(body);
     const result = await model.generateContent(fullPrompt);
-    const text = await result.response.text();
+    const text = result.response.text();
 
-    console.log("Raw AI Response:", text);
+    // Process and validate captions
+    const captions = processAIResponse(text);
 
-    let captions: string[] = [];
-
-    try {
-      // Try parsing AI response as JSON
-      captions = JSON.parse(text);
-    } catch (error) {
-      console.error('AI response is not in JSON format. Extracting manually.');
-
-      // Split based on tone emoji (assuming Gemini follows the format)
-      captions = text
-        .split(/(?=👔|🔥|😊|💡|🚀)/) // Split at emojis marking new captions
-        .map(c => c.trim())
-        .filter(c => c.length > 50) // Ensure non-empty, valid captions
-        .slice(0, 5); // Limit to 5 captions
-    }
-
-    // Validate captions
-    if (!Array.isArray(captions) || captions.length === 0) {
-      console.error('No valid captions generated:', captions);
-      throw new Error('No valid captions generated');
-    }
-
-    console.log('Successfully generated captions:', captions);
     return NextResponse.json({ captions });
-
   } catch (error) {
-    console.error('Caption generation error:', {
-      message: error instanceof Error ? error.message : 'Unknown error',
-      error,
-    });
-
+    console.error('Caption generation error:', error);
+    
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'An unexpected error occurred while generating captions' },
+      { 
+        error: error instanceof Error 
+          ? error.message 
+          : 'An unexpected error occurred while generating captions' 
+      },
       { status: 500 }
     );
   }

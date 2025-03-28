@@ -14,10 +14,10 @@ const TONE_LABELS = [
 
 
 const NICHE_SUGGESTIONS = [
-  { label: 'Motivation', examples: ['Morning motivation', 'Success mindset', 'Overcoming challenges'] },
-  { label: 'Food', examples: ['Restaurant reviews', 'Recipe sharing', 'Street food exploration'] },
-  { label: 'Fitness', examples: ['Workout tips', 'Healthy lifestyle', 'Gym motivation'] },
-  { label: 'Business', examples: ['Entrepreneurship', 'Marketing strategies', 'Personal branding'] },
+  { label: 'Motivation', examples: ['Morning motivation', 'Success mindset'] },
+  { label: 'Food', examples: ['Restaurant reviews', 'Recipe sharing'] },
+  { label: 'Fitness', examples: ['Workout tips', 'Healthy lifestyle'] },
+  { label: 'Business', examples: ['Entrepreneurship', 'Personal branding'] },
 ];
 
 

@@ -65,9 +65,9 @@ const BioGenerator = () => {
         body: JSON.stringify({ prompt: PROMPT }),
       })
       
-      if (!response.ok) {
-        throw new Error('Failed to generate bios')
-      }
+      // if (!response.ok) {
+      //   throw new Error('Failed to generate bios')
+      // }
       
       const data = await response.json()
       const generatedBios = data.content
