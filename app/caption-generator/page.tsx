@@ -212,6 +212,7 @@ Format the response as JSON with the following structure:
                   <button
                     type="button"
                     key={tone.name}
+                    
                     onClick={() => setSelectedTone(tone)}
                     className={`group p-3 rounded-lg text-center transition-all
                       ${selectedTone?.name === tone.name 
