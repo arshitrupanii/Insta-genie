@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useCallback } from 'react'
 
 const PROMPT = `Generate 10 unique, creative 4-line Instagram bios with different tones. Each bio should:
 - Include relevant and trendy emojis
@@ -37,25 +37,13 @@ Please generate one bio for each of these tones:
 
 Make each bio unique and tailored to its specific tone while maintaining authenticity and engagement. Include relevant hashtags or social media elements where appropriate.`
 
-// Cache to store previously generated bios
 const BioGenerator = () => {
   const [bios, setBios] = useState<string[]>([])
   const [loading, setLoading] = useState<boolean>(false)
   const [error, setError] = useState<string | null>(null)
-  const [cachedBios, setCachedBios] = useState<string[][]>([]) // Store multiple sets of bios
-  const [currentCacheIndex, setCurrentCacheIndex] = useState<number>(0)
 
-  const prefetchNextBios = useCallback(async () => {
-    try {
-      const newBios = await fetchAndCacheBios()
-      setCachedBios(prev => [...prev, newBios])
-    } catch (error) {
-      console.error('Error prefetching bios:', error)
-    }
-  }, [])  // Empty dependency array since fetchAndCacheBios is stable
-
-  // Fetch bios and add to cache
-  const fetchAndCacheBios = async () => {
+  // Fetch bios
+  const fetchBios = async () => {
     try {
       const response = await fetch('/api/generate-bios', {
         method: 'POST',
@@ -65,15 +53,26 @@ const BioGenerator = () => {
         body: JSON.stringify({ prompt: PROMPT }),
       })
       
-      // if (!response.ok) {
-      //   throw new Error('Failed to generate bios')
-      // }
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to generate bios')
+      }
       
       const data = await response.json()
+      
+      if (!data.content) {
+        throw new Error('No content received from server')
+      }
+
+      // Process the content into bios
       const generatedBios = data.content
         .split('---')
         .map((bio: string) => bio.trim())
         .filter((bio: string) => bio.length > 0)
+
+      if (generatedBios.length === 0) {
+        throw new Error('No valid bios generated')
+      }
 
       return generatedBios
     } catch (error) {
@@ -88,21 +87,8 @@ const BioGenerator = () => {
     setError(null)
 
     try {
-      // If we have cached bios, use them
-      if (currentCacheIndex < cachedBios.length) {
-        setBios(cachedBios[currentCacheIndex])
-        setCurrentCacheIndex(prev => prev + 1)
-        // Prefetch next set if cache is running low
-        if (currentCacheIndex >= cachedBios.length - 2) {
-          prefetchNextBios()
-        }
-      } else {
-        // If no cached bios available, fetch directly
-        const newBios = await fetchAndCacheBios()
-        setBios(newBios)
-        // Start building cache again
-        prefetchNextBios()
-      }
+      const newBios = await fetchBios()
+      setBios(newBios)
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Failed to generate bios. Please try again.')
       setBios([])
@@ -110,26 +96,6 @@ const BioGenerator = () => {
       setLoading(false)
     }
   }
-
-  // Initial load
-  useEffect(() => {
-    const initializeBios = async () => {
-      setLoading(true)
-      try {
-        // Fetch initial set
-        const initialBios = await fetchAndCacheBios()
-        setBios(initialBios)
-        // Prefetch next set
-        prefetchNextBios()
-      } catch (error) {
-        setError(error instanceof Error ? error.message : 'Failed to generate initial bios.')
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    initializeBios()
-  }, [prefetchNextBios])
 
   const copyToClipboard = async (text: string) => {
     try {
@@ -171,13 +137,18 @@ const BioGenerator = () => {
 
         <div className="space-y-4">
           {bios.map((bio, index) => {
-            const [toneLabel, ...bioContent] = bio.split('\n')
-            const cleanBioContent = bioContent.join('\n').trim()
+            if (!bio) return null; // Skip if bio is undefined or empty
+            
+            const bioLines = bio.split('\n');
+            if (bioLines.length < 2) return null; // Skip if bio doesn't have enough lines
+            
+            const [toneLabel, ...bioContent] = bioLines;
+            const cleanBioContent = bioContent.join('\n').trim();
 
             return (
               <div key={index} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-100 dark:border-gray-700">
                 <div className="text-sm font-medium p-2.5 bg-gray-50 dark:bg-gray-700/50 border-b border-gray-100 dark:border-gray-700 text-gray-700 dark:text-gray-200">
-                  {toneLabel}
+                  {toneLabel || 'Untitled Bio'}
                 </div>
                 <div className="flex items-start justify-between p-3 gap-4">
                   <pre className="text-left text-gray-600 dark:text-gray-300 whitespace-pre-line font-sans text-sm leading-relaxed">

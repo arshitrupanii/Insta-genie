@@ -12,15 +12,13 @@ export default function Navbar() {
   // Close menu when route changes
   const pathname = usePathname()
   
-  useEffect(() => {
+  useEffect(() => {   
     setIsOpen(false)
   }, [pathname])
 
   const navLinks = [
     { href: '/Bio-generator', label: 'Bio Generator' },
     { href: '/caption-generator', label: 'Caption Generator' },
-    { href: '/scheduler', label: 'Scheduler' },
-    { href: '/youtube-analytics', label: 'Analytics' }
   ]
 
   return (

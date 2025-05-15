@@ -46,7 +46,7 @@ export default function Home() {
                   AI-powered tools for content—ideas, captions & posts.
                 </span>
                 <span className="hidden sm:block">
-                  Streamline your content creation process with AI-powered tools. Generate ideas, create captions, and manage your social media presence all in one place.
+                  Generate ideas, create captions, and manage your social media presence all in one place.
                 </span>
               </p>
 

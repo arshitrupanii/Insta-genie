@@ -86,7 +86,7 @@ const processAIResponse = (text: string): string[] => {
     // Additional parsing attempt for problematic responses
     try {
       // Try extracting JSON-like content
-      const jsonMatch = text.match(/\[.*\]/s);
+      const jsonMatch = text.match(/\[.*\]/);
       if (jsonMatch) {
         const extractedJson = jsonMatch[0].trim();
         const captions = JSON.parse(extractedJson);
