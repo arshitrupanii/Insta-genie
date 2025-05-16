@@ -57,13 +57,7 @@ export default function Home() {
                 >
                   Get Started
                 </Link>
-                <Link
-                  href="/features"
-                  className="group text-sm sm:text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2 hover:gap-3 active:opacity-70 transition-all duration-200"
-                >
-                  Learn more
-                  <ArrowRightIcon className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                </Link>
+                
               </div>
             </div>
           </div>
